@@ -14,6 +14,7 @@ namespace Counting
 		static void Main(string[] args)
 		{
 			bool[] data = { true, true, true, true, true, true, true, true, true, true };
+            //bool[] data = { true, true, true, true, true, false, false, false, false, false };
 
 			// The probabilistic program
 			// -------------------------
@@ -23,19 +24,29 @@ namespace Counting
 			Range ball = new Range(maxBalls+1); // so that numBalls = (0,...,maxBalls)
 			Variable<int> numBalls = Variable.DiscreteUniform(ball);
 			VariableArray<bool> isBlue = Variable.Array<bool>(ball);
-            // ...add code here...
+            Variable<bool> switchedColor = Variable.Bernoulli(0.2);
             isBlue[ball] = Variable.Bernoulli(0.5).ForEach(ball);
 
             // Variables describing the observations
             Range draw = new Range(data.Length);
 			VariableArray<bool> observedBlue = Variable.Array<bool>(draw);
             VariableArray<int> ballIndex = Variable.Array<int>(draw);
-            VariableArray<bool> dataArray = Variable.Observed<bool>(data, draw);
-            using (Variable.ForEach(draw)) {
-                // ...add code here...
-                ballIndex[draw] = Variable.DiscreteUniform( numBalls );
-                observedBlue[draw] = dataArray[ballIndex[draw]];
-			}
+            using (Variable.ForEach(draw))
+            {
+                ballIndex[draw] = Variable.DiscreteUniform(numBalls);
+                using (Variable<bool>.Switch(ballIndex[draw])) {
+                    using (Variable.If(switchedColor))
+                    {
+                        observedBlue[draw] = !isBlue[ballIndex[draw]];
+                    }
+                    using (Variable.IfNot(switchedColor))
+                    {
+                        observedBlue[draw] = isBlue[ballIndex[draw]];
+                    }
+                }
+            }
+
+            observedBlue.ObservedValue = data;
 
             // Inference queries about the program
             // -----------------------------------
