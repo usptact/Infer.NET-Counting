@@ -7,6 +7,11 @@ using MicrosoftResearch.Infer;
 using MicrosoftResearch.Infer.Distributions;
 using MicrosoftResearch.Infer.Maths;
 
+//
+// The model estimates the (discrete) probability distribution over the number of balls in an urn given observations.
+// The observations can be noisy, as governed by the "switchedColor" random variable. Set the Bernoulli parameter to 0 to have noiseless version.
+//
+
 namespace Counting
 {
 	class Program
@@ -24,7 +29,6 @@ namespace Counting
 			Range ball = new Range(maxBalls+1); // so that numBalls = (0,...,maxBalls)
 			Variable<int> numBalls = Variable.DiscreteUniform(ball);
 			VariableArray<bool> isBlue = Variable.Array<bool>(ball);
-            Variable<bool> switchedColor = Variable.Bernoulli(0.2);
             isBlue[ball] = Variable.Bernoulli(0.5).ForEach(ball);
 
             // Variables describing the observations
@@ -34,6 +38,7 @@ namespace Counting
             using (Variable.ForEach(draw))
             {
                 ballIndex[draw] = Variable.DiscreteUniform(numBalls);
+                Variable<bool> switchedColor = Variable.Bernoulli(0.0);
                 using (Variable<bool>.Switch(ballIndex[draw])) {
                     using (Variable.If(switchedColor))
                     {
