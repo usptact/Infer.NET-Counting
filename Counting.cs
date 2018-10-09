@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MicrosoftResearch.Infer.Models;
-using MicrosoftResearch.Infer;
-using MicrosoftResearch.Infer.Distributions;
-using MicrosoftResearch.Infer.Maths;
+using Microsoft.ML.Probabilistic.Distributions;
+using Microsoft.ML.Probabilistic.Models;
 
 //
 // The model estimates the (discrete) probability distribution over the number of balls in an urn given observations.

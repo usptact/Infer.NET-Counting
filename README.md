@@ -6,3 +6,5 @@ An urn contains fixed but unknown number of 2 color balls (say, black and white)
 Example: Ten draws were made from the urn. It happened that all colors are black. Would it be likely to have two balls in the urn? 5? 10? 100?
 
 Finally, what happens if the observations are noisy?
+
+Updated to use open source Infer.NET.
