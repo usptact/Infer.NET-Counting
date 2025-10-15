@@ -1,10 +1,51 @@
-# Infer.NET-Counting
-Machine Learning Summer School 2009 workshop example
+# Infer.NET Counting (net8.0)
 
-An urn contains fixed but unknown number of 2 color balls (say, black and white). The proportions of colors is known: half of the balls are white, another half is black. A random ball is picked from the urn, get its color recorded and replaced back in the urn. A number of draws is performed and the observed colors are recorded. The task is to infer the (discrete) distribution over ball numbers.
+This sample demonstrates Bayesian inference with [Microsoft Infer.NET](https://github.com/dotnet/infer): given repeated draws from an urn with two colours, infer a posterior distribution over the number of balls in the urn.
 
-Example: Ten draws were made from the urn. It happened that all colors are black. Would it be likely to have two balls in the urn? 5? 10? 100?
+The model assumes the proportion of colours is known a priori (here 50/50). Each draw selects a ball uniformly at random with replacement. Optionally, observations can be noisy via a colour flip variable.
 
-Finally, what happens if the observations are noisy?
+## Problem
 
-Updated to use open source Infer.NET.
+Given a sequence of observed colours from repeated draws, estimate the discrete distribution over the total number of balls. For example, if 10 draws are all blue, how likely is each possible count from 0 to a maximum?
+
+## Solution (model)
+
+- The prior over `numBalls` is uniform over \[0, maxBalls\].
+- For each hypothetical ball, its colour is Bernoulli(0.5).
+- Each draw indexes a ball uniformly from `0..numBalls-1` and observes its (possibly flipped) colour.
+- Inference is performed with `InferenceEngine` to obtain a `Discrete` posterior for `numBalls`.
+
+See `Counting.cs` for the full model.
+
+## Requirements
+
+- .NET 8 SDK
+
+## Build and run
+
+```bash
+dotnet build
+dotnet run --project Counting.csproj
+```
+
+You can tweak the observations in `Counting.cs` to explore different scenarios (e.g., add noise, change number of draws, or increase `maxBalls`).
+
+## Scenarios and interpretation
+
+The program runs several predefined scenarios:
+
+- 10 blue (noiseless): strong evidence for larger feasible counts up to the prior support.
+- 5 blue / 5 green (noiseless): evidence spreads more evenly since both colours appear.
+- 10 blue (20% noise): the posterior broadens; some unlikely outcomes can be explained by noise.
+- Mixed sequence (20% noise): reflects ambiguity due to both colour variety and noise.
+
+The printed posterior is a `Discrete` distribution over counts `0..maxBalls`. Read it as the probability mass for each possible number of balls.
+
+### Notes
+
+- This project targets `net8.0` and uses SDK-style `csproj` with `PackageReference`.
+- Packages: `Microsoft.ML.Probabilistic` and `Microsoft.ML.Probabilistic.Compiler`.
+
+## License
+
+Licensed under the Apache License, Version 2.0. See `LICENSE` for details.
