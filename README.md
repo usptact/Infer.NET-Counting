@@ -41,6 +41,38 @@ The program runs several predefined scenarios:
 
 The printed posterior is a `Discrete` distribution over counts `0..maxBalls`. Read it as the probability mass for each possible number of balls.
 
+## Model and assumptions
+
+This is a simple generative Bayesian model:
+
+- A discrete latent variable `numBalls ∈ {0..maxBalls}` with a uniform prior encodes the unknown count.
+- Each hypothetical ball has a latent colour sampled i.i.d. from `Bernoulli(0.5)` (known 50/50 colour mix).
+- Each draw selects a ball uniformly at random with replacement.
+- An optional noise variable flips the observed colour with probability `noise` to capture measurement/error.
+
+Key assumptions to be aware of:
+
+- The colour proportions are known and fixed at 50/50. If proportions are unknown, they should be modelled with a prior (e.g., Beta-Bernoulli) and inferred jointly.
+- Draws are independent and identically distributed (with replacement, no depletion).
+- Noise is symmetric and i.i.d. across draws; domain-specific asymmetries should be modelled explicitly when needed.
+- The support `maxBalls` truncates the posterior; choose it large enough to avoid truncation bias.
+
+## Where this model is useful
+
+This pattern—inferring a discrete count from noisy binary (or categorical) observations—appears in many domains:
+
+- Quality control and reliability: estimate the number of defective items given pass/fail tests with known false positive/negative rates.
+- Sensor fusion and telemetry: infer the number of active sources/signals from binary detections with misclassification/noise.
+- Epidemiology and ecology: estimate population sizes from repeated detection/non-detection surveys with imperfect detection.
+- A/B testing style telemetry: infer the size of an engaged subgroup from noisy user events.
+- Inventory and operations: estimate stock counts from spot-check samples when observations can be erroneous.
+
+The model can be extended by:
+
+- Learning the colour proportion with a Beta prior; extending to multi-colour with a Dirichlet-Categorical prior.
+- Using hierarchical priors to share strength across multiple urns/segments.
+- Replacing the symmetric flip-noise with asymmetric error models learned from data.
+
 ### Notes
 
 - This project targets `net8.0` and uses SDK-style `csproj` with `PackageReference`.
